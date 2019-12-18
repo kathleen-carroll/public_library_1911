@@ -48,4 +48,43 @@ class LibraryTest < Minitest::Test
     assert_equal ({:start=>"1847", :end=>"1857"}), @dpl.publication_time_frame_for(@charlotte_bronte)
     assert_equal ({:start=>"1960", :end=>"1960"}), @dpl.publication_time_frame_for(@harper_lee)
   end
+
+  def test_it_can_checkout_books
+    assert_equal false, @dpl.checkout(@mockingbird)
+    assert_equal false, @dpl.checkout(@jane_eyre)
+
+    @dpl.add_author(@charlotte_bronte)
+    @dpl.add_author(@harper_lee)
+    assert_equal true, @dpl.checkout(@jane_eyre)
+    assert_equal [@jane_eyre], @dpl.checked_out_books
+    assert_equal false, @dpl.checkout(@jane_eyre)
+  end
+
+  def test_it_can_return_books
+    @dpl.add_author(@charlotte_bronte)
+    @dpl.add_author(@harper_lee)
+    @dpl.checkout(@jane_eyre)
+    assert_equal [@jane_eyre], @dpl.checked_out_books
+
+    @dpl.return(@jane_eyre)
+    assert_equal [], @dpl.checked_out_books
+  end
+
+  def test_more_checkout_and_return_and_popular_book
+    @dpl.add_author(@charlotte_bronte)
+    @dpl.add_author(@harper_lee)
+
+    assert_equal true, @dpl.checkout(@jane_eyre)
+    assert_equal true, @dpl.checkout(@villette)
+    assert_equal [@jane_eyre, @villette], @dpl.checked_out_books
+
+    assert_equal true, @dpl.checkout(@mockingbird)
+    @dpl.return(@mockingbird)
+    assert_equal true, @dpl.checkout(@mockingbird)
+    assert_equal false, @dpl.checkout(@mockingbird)
+    @dpl.return(@mockingbird)
+    assert_equal true, @dpl.checkout(@mockingbird)
+
+    assert_equal @mockingbird, @dpl.most_popular_book
+  end
 end
